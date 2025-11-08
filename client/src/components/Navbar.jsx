@@ -100,10 +100,17 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Button variant="secondary" size="sm" onClick={() => navigate("/login")}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/login")}
+                  className="px-6 py-2 font-medium"
+                >
                   Login
                 </Button>
-                <Button size="sm" onClick={() => navigate("/register")}>
+                <Button 
+                  onClick={() => navigate("/register")}
+                  className="px-6 py-2 font-medium"
+                >
                   Register
                 </Button>
               </>

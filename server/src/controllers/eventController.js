@@ -23,8 +23,23 @@ export const getEvents = async (req, res) => {
     const { category, status, search } = req.query;
     const filter = {};
 
+    // Role-based filtering:
+    // - No user (public) or Students: Only approved events
+    // - Organizers: Only approved events + their own events (any status)
+    // - Admins: All events (or filter by status if provided)
+    if (!req.user || req.user.role === "student") {
+      filter.status = "approved";
+    } else if (req.user.role === "organizer") {
+      // Organizers see approved events OR their own events
+      filter.$or = [
+        { status: "approved" },
+        { organizerId: req.user._id }
+      ];
+    } else if (req.user.role === "admin" && status) {
+      filter.status = status;
+    }
+
     if (category) filter.category = category;
-    if (status) filter.status = status;
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -52,6 +67,31 @@ export const getEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
+
+    // Access control based on user role:
+    // - No user (public) or Students: Only approved events
+    // - Organizers: Their own events (any status) or approved events
+    // - Admins: All events
+    
+    if (!req.user || req.user.role === "student") {
+      // Public users and students can only view approved events
+      if (event.status !== "approved") {
+        return res.status(404).json({ 
+          message: "Event not found" 
+        });
+      }
+    } else if (req.user.role === "organizer") {
+      // Organizers can view their own events (any status) or approved events
+      if (
+        event.status !== "approved" && 
+        event.organizerId._id.toString() !== req.user._id.toString()
+      ) {
+        return res.status(404).json({ 
+          message: "Event not found" 
+        });
+      }
+    }
+    // Admins can view all events (no restriction)
 
     res.json(event);
   } catch (error) {

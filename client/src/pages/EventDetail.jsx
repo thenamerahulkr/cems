@@ -1,12 +1,13 @@
 // Event detail page
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Calendar, MapPin, Share2, ArrowLeft } from "lucide-react"
+import { Calendar, MapPin, Share2, ArrowLeft, IndianRupee } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import Button from "../components/ui/Button"
 import QRDisplay from "../components/QRDisplay"
 import api from "../api/api"
 import { useAuth } from "../context/AuthContext"
+import { useRazorpay } from "../hooks/useRazorpay"
 
 export default function EventDetail() {
   const { id } = useParams()
@@ -17,6 +18,7 @@ export default function EventDetail() {
   const [isRegistered, setIsRegistered] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
   const [qrCode, setQrCode] = useState(null)
+  const { initiatePayment, loading: paymentLoading } = useRazorpay()
 
   useEffect(() => {
     fetchEventDetail()
@@ -63,17 +65,40 @@ export default function EventDetail() {
   }
 
   const handleRegister = async () => {
-    setActionLoading(true)
-    try {
-      const response = await api.post(`/registrations/${id}/register`)
-      setQrCode(response.data.qrCode)
-      setIsRegistered(true)
-      alert("Successfully registered for the event!")
-    } catch (error) {
-      console.error("Failed to register:", error)
-      alert(error.response?.data?.message || "Failed to register for event")
-    } finally {
-      setActionLoading(false)
+    // Check if event is paid
+    if (event.isPaid && event.price > 0) {
+      // Initiate payment for paid events
+      initiatePayment(
+        id,
+        event.title,
+        event.price,
+        (data) => {
+          // Payment successful
+          setQrCode(data.registration.qrCode)
+          setIsRegistered(true)
+          alert("Payment successful! You are now registered for the event.")
+          checkRegistrationStatus() // Refresh registration status
+        },
+        (error) => {
+          // Payment failed or cancelled
+          alert(error)
+        }
+      )
+    } else {
+      // Free event - use regular registration
+      setActionLoading(true)
+      try {
+        const response = await api.post(`/registrations/${id}/register`)
+        setQrCode(response.data.qrCode)
+        setIsRegistered(true)
+        alert("Successfully registered for the event!")
+        checkRegistrationStatus() // Refresh registration status
+      } catch (error) {
+        console.error("Failed to register:", error)
+        alert(error.response?.data?.message || "Failed to register for event")
+      } finally {
+        setActionLoading(false)
+      }
     }
   }
 
@@ -238,14 +263,42 @@ export default function EventDetail() {
             </Card>
 
             {user && user.role === "student" && (
-              <Button
-                className="w-full"
-                onClick={isRegistered ? handleUnregister : handleRegister}
-                disabled={actionLoading}
-                variant={isRegistered ? "outline" : "primary"}
-              >
-                {actionLoading ? "Processing..." : isRegistered ? "Unregister" : "Register Now"}
-              </Button>
+              <>
+                {event.isPaid && event.price > 0 && !isRegistered && (
+                  <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Registration Fee</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <IndianRupee size={24} className="text-green-600" />
+                            <span className="text-3xl font-bold text-green-600">{event.price}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Secure Payment</p>
+                          <p className="text-xs text-green-600 font-medium">via Razorpay</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                <Button
+                  className="w-full"
+                  onClick={isRegistered ? handleUnregister : handleRegister}
+                  disabled={actionLoading || paymentLoading}
+                  variant={isRegistered ? "outline" : "primary"}
+                >
+                  {actionLoading || paymentLoading
+                    ? "Processing..."
+                    : isRegistered
+                    ? "Unregister"
+                    : event.isPaid && event.price > 0
+                    ? `Pay ₹${event.price} & Register`
+                    : "Register Now"}
+                </Button>
+              </>
             )}
 
             {user && user.role === "admin" && (

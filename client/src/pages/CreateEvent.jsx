@@ -1,7 +1,7 @@
 // Create event page
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, IndianRupee } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import Button from "../components/ui/Button"
 import Input from "../components/ui/Input"
@@ -20,22 +20,34 @@ export default function CreateEvent() {
     time: "",
     venue: "",
     capacity: "",
+    isPaid: false,
+    price: "",
   })
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    setFormData((prev) => ({ 
+      ...prev, 
+      [name]: type === "checkbox" ? checked : value 
+    }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     try {
-      const response = await api.post("/events", formData)
-      // Mock success response
+      // Prepare event data
+      const eventData = {
+        ...formData,
+        price: formData.isPaid ? Number(formData.price) : 0,
+      }
+      
+      const response = await api.post("/events", eventData)
+      alert("Event created successfully! It will be visible after admin approval.")
       navigate("/events")
     } catch (error) {
       console.error("Failed to create event:", error)
+      alert(error.response?.data?.message || "Failed to create event. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -126,6 +138,56 @@ export default function CreateEvent() {
                   onChange={handleChange}
                   required
                 />
+              </div>
+
+              {/* Payment Section */}
+              <div className="border-t border-border pt-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="isPaid" className="text-base font-semibold">
+                        Paid Event
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Enable this if you want to charge a registration fee
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        id="isPaid"
+                        name="isPaid"
+                        checked={formData.isPaid}
+                        onChange={handleChange}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {formData.isPaid && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                      <Label htmlFor="price" className="flex items-center gap-2">
+                        <IndianRupee size={16} />
+                        Registration Fee *
+                      </Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        name="price"
+                        placeholder="Enter amount in INR"
+                        value={formData.price}
+                        onChange={handleChange}
+                        required={formData.isPaid}
+                        min="1"
+                        className="mt-2"
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Students will pay this amount via Razorpay during registration
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-3">

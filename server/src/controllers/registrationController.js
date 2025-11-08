@@ -20,6 +20,15 @@ export const registerForEvent = async (req, res) => {
       return res.status(400).json({ message: "Event is not approved yet" });
     }
 
+    // Check if event is paid - redirect to payment flow
+    if (event.isPaid && event.price > 0) {
+      return res.status(400).json({ 
+        message: "This is a paid event. Please use the payment flow.",
+        isPaid: true,
+        price: event.price
+      });
+    }
+
     // Check if already registered
     const existingReg = await Registration.findOne({ eventId: id, userId });
     if (existingReg) {
@@ -35,11 +44,13 @@ export const registerForEvent = async (req, res) => {
     const qrData = { eventId: id, userId: userId.toString(), timestamp: Date.now() };
     const qrCode = await generateQR(qrData);
 
-    // Create registration
+    // Create registration (free event)
     await Registration.create({
       eventId: id,
       userId,
       qrCode,
+      paymentStatus: "completed", // Free events are automatically completed
+      amount: 0,
     });
 
     // Add participant to event
@@ -86,7 +97,27 @@ export const registerForEvent = async (req, res) => {
     });
   } catch (error) {
     console.error("Registration error:", error);
-    res.status(500).json({ message: "Registration failed", error: error.message });
+    
+    // Handle duplicate registration error
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        message: "You are already registered for this event" 
+      });
+    }
+    
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        message: "Validation failed", 
+        errors: messages 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: "Registration failed. Please try again.", 
+      error: error.message 
+    });
   }
 };
 
@@ -108,7 +139,10 @@ export const unregisterFromEvent = async (req, res) => {
     res.json({ message: "Unregistered successfully" });
   } catch (error) {
     console.error("Unregistration error:", error);
-    res.status(500).json({ message: "Unregistration failed", error: error.message });
+    res.status(500).json({ 
+      message: "Failed to unregister. Please try again.", 
+      error: error.message 
+    });
   }
 };
 
@@ -131,15 +165,23 @@ export const getMyRegistrations = async (req, res) => {
       .populate("eventId")
       .sort({ createdAt: -1 });
 
-    const events = registrations.map((reg) => ({
-      ...reg.eventId.toObject(),
-      qrCode: reg.qrCode,
-      registrationId: reg._id,
-    }));
+    // Filter out registrations where event was deleted
+    const events = registrations
+      .filter((reg) => reg.eventId) // Only include if event exists
+      .map((reg) => ({
+        ...reg.eventId.toObject(),
+        qrCode: reg.qrCode,
+        registrationId: reg._id,
+        paymentStatus: reg.paymentStatus,
+        amount: reg.amount,
+      }));
 
     res.json({ events, registrations });
   } catch (error) {
     console.error("Get my registrations error:", error);
-    res.status(500).json({ message: "Failed to fetch registrations", error: error.message });
+    res.status(500).json({ 
+      message: "Failed to fetch your registrations. Please try again.", 
+      error: error.message 
+    });
   }
 };

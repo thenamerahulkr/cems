@@ -1,7 +1,7 @@
 // Event card component
 import { Link } from "react-router-dom"
 import Badge from "./ui/Badge"
-import { Calendar, MapPin, Users } from "lucide-react"
+import { Calendar, MapPin, Users, IndianRupee } from "lucide-react"
 
 export default function EventCard({ event }) {
   const categoryColors = {
@@ -15,9 +15,24 @@ export default function EventCard({ event }) {
 
   return (
     <Link to={`/events/${eventId}`}>
-      <div className="rounded-xl border border-border bg-card p-4 shadow-sm hover:border-primary hover:shadow-md transition-all h-full flex flex-col">
-        <div className="flex items-start justify-between mb-3">
+      <div className="rounded-xl border border-border bg-card p-4 shadow-sm hover:border-primary hover:shadow-md transition-all h-full flex flex-col relative">
+        {/* Price Badge */}
+        {event.isPaid && event.price > 0 ? (
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md flex items-center gap-1">
+            <IndianRupee size={14} />
+            {event.price}
+          </div>
+        ) : (
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md">
+            FREE
+          </div>
+        )}
+        
+        <div className="flex items-start justify-between mb-3 pr-20">
           <h3 className="font-semibold text-foreground text-lg line-clamp-2">{event.title}</h3>
+        </div>
+        
+        <div className="mb-3">
           <Badge variant="secondary" className={categoryColors[event.category]}>
             {event.category}
           </Badge>

@@ -9,13 +9,14 @@ import {
   rejectEvent,
 } from "../controllers/eventController.js";
 
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, optionalAuth } from "../middleware/authMiddleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getEvents);
-router.get("/:id", getEvent);
+// Use optionalAuth to check user role if logged in
+router.get("/", optionalAuth, getEvents);
+router.get("/:id", optionalAuth, getEvent);
 
 router.post("/", protect, requireRole("organizer", "admin"), createEvent);
 router.put("/:id", protect, requireRole("organizer", "admin"), updateEvent);

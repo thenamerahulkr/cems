@@ -18,7 +18,6 @@ export default function LandingOrHome() {
   if (user) {
     return <Home />
   }
-
   // If not logged in, show Landing page
   return <Landing />
 }

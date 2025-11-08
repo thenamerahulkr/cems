@@ -14,11 +14,25 @@ const registrationSchema = new mongoose.Schema(
     },
     qrCode: {
       type: String,
-      required: true,
     },
     verified: {
       type: Boolean,
       default: false,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed", "refunded"],
+      default: "pending",
+    },
+    paymentId: {
+      type: String,
+    },
+    orderId: {
+      type: String,
+    },
+    amount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
