@@ -15,7 +15,6 @@ import {
 } from "lucide-react"
 import Button from "../components/ui/Button"
 import EventCard from "../components/EventCard"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import api from "../api/api"
 import { useAuth } from "../context/AuthContext"
 
@@ -26,6 +25,38 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const { user } = useAuth()
+
+  // Features data
+  const features = [
+    {
+      icon: Calendar,
+      title: "Discover Events",
+      description: "Browse hundreds of campus events across all categories",
+    },
+    {
+      icon: Users,
+      title: "Connect & Network",
+      description: "Meet like-minded students and build your campus network",
+    },
+    {
+      icon: Ticket,
+      title: "Easy Registration",
+      description: "Register with one click and get your QR code instantly",
+    },
+    {
+      icon: Bell,
+      title: "Stay Updated",
+      description: "Get notifications and reminders for your events",
+    },
+  ]
+
+  // Stats data for display
+  const statsData = [
+    { icon: Users, label: "Total Users", value: stats?.totalUsers || "1.2K+", color: "text-blue-500" },
+    { icon: Calendar, label: "Total Events", value: stats?.totalEvents || "89", color: "text-purple-500" },
+    { icon: CheckCircle, label: "Registrations", value: stats?.totalRegistrations || "12K+", color: "text-green-500" },
+    { icon: TrendingUp, label: "Active Events", value: stats?.activeEvents || "98%", color: "text-orange-500" },
+  ]
 
   useEffect(() => {
     fetchDashboardData()
@@ -129,7 +160,7 @@ export default function Home() {
 
             {/* Right Stats Grid */}
             <div className="grid grid-cols-2 gap-6">
-              {stats.map((stat, index) => {
+              {statsData.map((stat, index) => {
                 const Icon = stat.icon
                 return (
                   <div
@@ -137,7 +168,7 @@ export default function Home() {
                     className="group bg-card border border-border rounded-2xl p-8 hover:border-primary/30 hover:shadow-lg transition-all"
                   >
                     <div className="flex flex-col h-full">
-                      <Icon size={36} className={`${stat.color} mb-4`} />
+                      <Icon size={36} className={stat.color} />
                       <div className="mt-auto">
                         <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
                         <div className="text-sm text-muted-foreground">{stat.label}</div>
@@ -225,48 +256,8 @@ export default function Home() {
         </div>
       </section>
 
-      CTA Section
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-gradient-to-r from-primary to-accent rounded-3xl p-12 md:p-16 text-center text-primary-foreground relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-10 right-10 w-32 h-32 border-2 border-white rounded-full"></div>
-              <div className="absolute bottom-10 left-10 w-24 h-24 border-2 border-white rounded-full"></div>
-            </div>
-
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Ready to create something amazing?
-              </h2>
-              <p className="text-xl mb-10 text-primary-foreground/90 max-w-2xl mx-auto">
-                Start organizing your own events and bring your campus community together
-              </p>
-              {user?.role === "organizer" || user?.role === "admin" ? (
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => navigate("/create-event")}
-                  className="text-base font-semibold"
-                >
-                  Create Your Event
-                  <ArrowRight className="ml-2" size={20} />
-                </Button>
-              ) : (
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => navigate("/login")}
-                  className="text-base font-semibold"
-                >
-                  Get Started Now
-                  <ArrowRight className="ml-2" size={20} />
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/*CTA Section*/}
+      
     </div>
   )
 }

@@ -6,6 +6,7 @@ import registrationRoutes from "./routes/registrationRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import qrRoutes from "./routes/qrRoutes.js";
+import testRoutes from "./routes/testRoutes.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/qr", qrRoutes);
+app.use("/api/test", testRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

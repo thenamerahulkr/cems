@@ -93,7 +93,7 @@ export default function Navbar() {
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="text-destructive hover:bg-destructive/10"
+                  className="text-red-600 hover:bg-red-50"
                 >
                   <LogOut size={16} />
                 </Button>
@@ -157,8 +157,8 @@ export default function Navbar() {
                     Notifications
                   </Button>
                   <Button
-                    variant="destructive"
-                    className="w-full justify-center gap-2"
+                    variant="outline"
+                    className="w-full justify-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
                     onClick={() => {
                       handleLogout()
                       setMobileOpen(false)

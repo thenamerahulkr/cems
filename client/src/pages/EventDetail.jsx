@@ -20,32 +20,45 @@ export default function EventDetail() {
 
   useEffect(() => {
     fetchEventDetail()
-  }, [id])
+    if (user?.role === "student") {
+      checkRegistrationStatus()
+    }
+  }, [id, user])
 
   const fetchEventDetail = async () => {
     try {
       const response = await api.get(`/events/${id}`)
-      // Mock response
-      setEvent(
-        response.data || {
-          id,
-          title: "Tech Summit 2024",
-          description: "Join industry leaders for talks on AI and web development",
-          fullDescription:
-            "This is a full-day event featuring keynote presentations, workshops, and networking opportunities with tech industry professionals.",
-          category: "Technical",
-          date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          venue: "Main Auditorium",
-          registrations: 245,
-          capacity: 500,
-          organizer: "Tech Club",
-        },
-      )
-      setIsRegistered(Math.random() > 0.5)
+      setEvent(response.data)
     } catch (error) {
       console.error("Failed to fetch event:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const checkRegistrationStatus = async () => {
+    try {
+      // Check if user is registered by fetching their registrations
+      const response = await api.get("/registrations/my-events")
+      const registeredEvents = response.data.events || []
+      
+      // Find if this event is in the registered events
+      const registration = registeredEvents.find(event => 
+        (event._id === id || event.id === id)
+      )
+      
+      if (registration) {
+        setIsRegistered(true)
+        // Set the QR code if it exists
+        if (registration.qrCode) {
+          setQrCode(registration.qrCode)
+        }
+      } else {
+        setIsRegistered(false)
+        setQrCode(null)
+      }
+    } catch (error) {
+      console.error("Failed to check registration:", error)
     }
   }
 
@@ -81,10 +94,26 @@ export default function EventDetail() {
   const handleApprove = async () => {
     setActionLoading(true)
     try {
-      await api.post(`/events/${id}/approve`, {})
-      // Handle success
+      const response = await api.post(`/events/${id}/approve`)
+      setEvent({ ...event, status: "approved" })
+      alert("Event approved successfully!")
     } catch (error) {
       console.error("Failed to approve:", error)
+      alert(error.response?.data?.message || "Failed to approve event")
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleReject = async () => {
+    setActionLoading(true)
+    try {
+      const response = await api.post(`/events/${id}/reject`)
+      setEvent({ ...event, status: "rejected" })
+      alert("Event rejected")
+    } catch (error) {
+      console.error("Failed to reject:", error)
+      alert(error.response?.data?.message || "Failed to reject event")
     } finally {
       setActionLoading(false)
     }
@@ -128,9 +157,22 @@ export default function EventDetail() {
             <Card>
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
-                  <div>
+                  <div className="flex-1">
                     <CardTitle className="text-3xl">{event.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-2">{event.category}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-sm text-muted-foreground">{event.category}</p>
+                      {event.status && (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          event.status === "approved" 
+                            ? "bg-green-100 text-green-800" 
+                            : event.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}>
+                          {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardHeader>
@@ -200,19 +242,28 @@ export default function EventDetail() {
                 className="w-full"
                 onClick={isRegistered ? handleUnregister : handleRegister}
                 disabled={actionLoading}
-                variant={isRegistered ? "destructive" : "primary"}
+                variant={isRegistered ? "outline" : "primary"}
               >
                 {actionLoading ? "Processing..." : isRegistered ? "Unregister" : "Register Now"}
               </Button>
             )}
 
-            {user && (user.role === "organizer" || user.role === "admin") && (
+            {user && user.role === "admin" && (
               <div className="space-y-2">
-                <Button className="w-full" onClick={handleApprove} disabled={actionLoading}>
-                  Approve Event
+                <Button 
+                  className="w-full" 
+                  onClick={handleApprove} 
+                  disabled={actionLoading || event.status === "approved"}
+                >
+                  {actionLoading ? "Processing..." : event.status === "approved" ? "Approved ✓" : "Approve Event"}
                 </Button>
-                <Button variant="destructive" className="w-full">
-                  Reject Event
+                <Button 
+                  variant="outline" 
+                  className="w-full border-red-200 text-red-600 hover:bg-red-50"
+                  onClick={handleReject}
+                  disabled={actionLoading || event.status === "rejected"}
+                >
+                  {actionLoading ? "Processing..." : event.status === "rejected" ? "Rejected" : "Reject Event"}
                 </Button>
               </div>
             )}

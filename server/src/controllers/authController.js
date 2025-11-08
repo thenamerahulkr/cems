@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/generateToken.js";
+import { sendMail } from "../services/mailService.js";
 
 export const register = async (req, res) => {
   try {
@@ -26,6 +27,35 @@ export const register = async (req, res) => {
 
     // Generate token
     const token = generateToken(user._id);
+
+    // Send welcome email (don't block registration if email fails)
+    try {
+      await sendMail(
+        email,
+        "Welcome to CEMS!",
+        `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">Welcome to CEMS, ${name}!</h2>
+            <p>Thank you for registering with the College Event Management System.</p>
+            <p>Your account has been created successfully as a <strong>${role}</strong>.</p>
+            <p>You can now:</p>
+            <ul>
+              <li>Browse and discover campus events</li>
+              <li>Register for events with one click</li>
+              <li>Get QR codes for event check-in</li>
+              <li>Receive notifications and reminders</li>
+            </ul>
+            <p>Get started by exploring upcoming events!</p>
+            <p style="color: #666; font-size: 12px; margin-top: 20px;">
+              This is an automated email from CEMS. Please do not reply.
+            </p>
+          </div>
+        `
+      );
+    } catch (emailError) {
+      console.error("Failed to send welcome email:", emailError);
+      // Continue with registration even if email fails
+    }
 
     res.status(201).json({
       message: "Registered successfully",
