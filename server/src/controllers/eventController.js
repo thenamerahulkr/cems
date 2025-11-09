@@ -1,4 +1,5 @@
 import Event from "../models/Event.js";
+import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 
 export const createEvent = async (req, res) => {
@@ -7,6 +8,20 @@ export const createEvent = async (req, res) => {
       ...req.body,
       organizerId: req.user._id,
     });
+
+    // Notify all admins about new event
+    try {
+      const admins = await User.find({ role: "admin" });
+      for (const admin of admins) {
+        await Notification.create({
+          userId: admin._id,
+          message: `New event "${event.title}" by ${req.user.name} is waiting for approval.`,
+          type: "info",
+        });
+      }
+    } catch (notifError) {
+      console.error("Failed to notify admins:", notifError);
+    }
 
     res.status(201).json({
       message: "Event created successfully",

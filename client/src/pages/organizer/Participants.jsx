@@ -2,11 +2,11 @@
 import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { Download, Check, X } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/Table"
-import Button from "../components/ui/Button"
-import Badge from "../components/ui/Badge"
-import api from "../api/api"
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/Table"
+import Button from "../../components/ui/Button"
+import Badge from "../../components/ui/Badge"
+import api from "../../api/api"
 
 export default function Participants() {
   const { eventId } = useParams()
@@ -64,8 +64,8 @@ export default function Participants() {
   }
 
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-background">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-foreground">Event Participants</h1>
           <Button onClick={handleExportCSV} className="gap-2">
@@ -133,7 +133,7 @@ export default function Participants() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </main>
     </div>
   )
 }

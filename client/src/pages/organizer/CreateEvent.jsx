@@ -2,12 +2,12 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, IndianRupee } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
-import Button from "../components/ui/Button"
-import Input from "../components/ui/Input"
-import Label from "../components/ui/Label"
-import Select from "../components/ui/Select"
-import api from "../api/api"
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
+import Button from "../../components/ui/Button"
+import Input from "../../components/ui/Input"
+import Label from "../../components/ui/Label"
+import Select from "../../components/ui/Select"
+import api from "../../api/api"
 
 export default function CreateEvent() {
   const navigate = useNavigate()
@@ -54,8 +54,8 @@ export default function CreateEvent() {
   }
 
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="bg-background">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft size={16} className="mr-2" />
           Back
@@ -67,6 +67,7 @@ export default function CreateEvent() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Event Title - Full Width */}
               <div>
                 <Label htmlFor="title">Event Title *</Label>
                 <Input
@@ -79,6 +80,7 @@ export default function CreateEvent() {
                 />
               </div>
 
+              {/* Description - Full Width */}
               <div>
                 <Label htmlFor="description">Description *</Label>
                 <textarea
@@ -88,10 +90,11 @@ export default function CreateEvent() {
                   value={formData.description}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent min-h-32 resize-none"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent min-h-[120px] resize-none"
                 />
               </div>
 
+              {/* Two Column Layout for other fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="category">Category *</Label>
@@ -201,7 +204,7 @@ export default function CreateEvent() {
             </form>
           </CardContent>
         </Card>
-      </div>
+      </main>
     </div>
   )
 }

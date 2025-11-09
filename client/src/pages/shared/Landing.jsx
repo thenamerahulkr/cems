@@ -1,7 +1,8 @@
 // Landing page
 import { useNavigate } from "react-router-dom"
 import { ArrowRight, Calendar, Users, Zap, CheckCircle, Star, TrendingUp } from "lucide-react"
-import Button from "../components/ui/Button"
+import Button from "../../components/ui/Button"
+import Footer from "../../components/Footer"
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -296,6 +297,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

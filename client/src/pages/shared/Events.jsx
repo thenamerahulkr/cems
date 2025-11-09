@@ -1,11 +1,11 @@
 // Events page
 import { useEffect, useState } from "react"
 import { Search, Filter } from "lucide-react"
-import EventCard from "../components/EventCard"
-import Button from "../components/ui/Button"
-import Input from "../components/ui/Input"
-import Select from "../components/ui/Select"
-import api from "../api/api"
+import EventCard from "../../components/EventCard"
+import Button from "../../components/ui/Button"
+import Input from "../../components/ui/Input"
+import Select from "../../components/ui/Select"
+import api from "../../api/api"
 
 export default function Events() {
   const [events, setEvents] = useState([])
@@ -92,8 +92,8 @@ export default function Events() {
   }
 
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-background">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">All Events</h1>
           <p className="text-muted-foreground">Discover all upcoming events and activities</p>
@@ -136,7 +136,7 @@ export default function Events() {
         ) : filteredEvents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event._id || event.id} event={event} />
             ))}
           </div>
         ) : (
@@ -157,7 +157,7 @@ export default function Events() {
         <div className="mt-8 text-center text-sm text-muted-foreground">
           Showing {filteredEvents.length} of {events.length} events
         </div>
-      </div>
+      </main>
     </div>
   )
 }

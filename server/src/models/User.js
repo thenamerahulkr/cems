@@ -24,6 +24,14 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "organizer", "admin"],
       default: "student",
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: function() {
+        // Only organizers need approval, students are auto-approved
+        return this.role === "organizer" ? "pending" : "approved";
+      },
+    },
     department: {
       type: String,
       trim: true,

@@ -56,36 +56,83 @@ export const registerForEvent = async (req, res) => {
     // Add participant to event
     await Event.findByIdAndUpdate(id, { $push: { participants: userId } });
 
-    // Create notification
+    // Create notification for student
     await Notification.create({
       userId,
       message: `You have successfully registered for "${event.title}"`,
       type: "success",
     });
 
-    // Send confirmation email (don't block registration if email fails)
+    // Notify organizer about new registration
+    try {
+      await Notification.create({
+        userId: event.organizerId,
+        message: `${req.user.name} registered for your event "${event.title}"`,
+        type: "info",
+      });
+    } catch (notifError) {
+      console.error("Failed to notify organizer:", notifError);
+    }
+
+    // Send confirmation email with QR code (don't block registration if email fails)
     try {
       await sendMail(
         req.user.email,
         `Registration Confirmed: ${event.title}`,
         `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #333;">Registration Confirmed!</h2>
-            <p>Hi ${req.user.name},</p>
-            <p>You have successfully registered for <strong>${event.title}</strong>.</p>
-            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p style="margin: 5px 0;"><strong>Event:</strong> ${event.title}</p>
-              <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
-              <p style="margin: 5px 0;"><strong>Venue:</strong> ${event.venue}</p>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">✅ Registration Confirmed!</h1>
             </div>
-            <p>Your QR code has been generated. You can view it in your registered events.</p>
-            <p>We'll send you a reminder 24 hours before the event.</p>
-            <p style="color: #666; font-size: 12px; margin-top: 20px;">
-              This is an automated email from CEMS. Please do not reply.
-            </p>
+            
+            <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+              <h2 style="color: #333; margin-top: 0;">Hi ${req.user.name},</h2>
+              
+              <p style="color: #555; line-height: 1.6;">
+                You have successfully registered for <strong>${event.title}</strong>.
+              </p>
+              
+              <div style="background: white; border-left: 4px solid #10b981; padding: 20px; margin: 25px 0; border-radius: 5px;">
+                <h3 style="margin-top: 0; color: #333;">Event Details:</h3>
+                <p style="margin: 10px 0;"><strong>Event:</strong> ${event.title}</p>
+                <p style="margin: 10px 0;"><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()} at ${new Date(event.date).toLocaleTimeString()}</p>
+                <p style="margin: 10px 0;"><strong>Venue:</strong> ${event.venue}</p>
+              </div>
+
+              <div style="background: white; padding: 20px; margin: 25px 0; border-radius: 8px; text-align: center;">
+                <h3 style="color: #333; margin-top: 0;">Your QR Code</h3>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                  Show this QR code at the event entrance for check-in
+                </p>
+                <img src="${qrCode}" alt="Event QR Code" style="max-width: 250px; height: auto; border: 2px solid #e5e7eb; border-radius: 8px; padding: 10px;" />
+                <p style="color: #666; font-size: 12px; margin-top: 15px;">
+                  You can also access this QR code anytime from your registered events page.
+                </p>
+              </div>
+              
+              <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 25px 0; border-radius: 5px;">
+                <p style="margin: 0; color: #92400e; font-size: 14px;">
+                  <strong>📅 Reminder:</strong> We'll send you a reminder 24 hours before the event.
+                </p>
+              </div>
+              
+              <p style="color: #555; line-height: 1.6;">
+                Looking forward to seeing you at the event!
+              </p>
+              
+              <p style="color: #555; line-height: 1.6;">
+                Best regards,<br>
+                <strong>CEMS Team</strong>
+              </p>
+            </div>
+            
+            <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
+              <p>This is an automated email from CEMS. Please do not reply.</p>
+            </div>
           </div>
         `
       );
+      console.log("✅ Registration confirmation email with QR code sent to:", req.user.email);
     } catch (emailError) {
       console.error("Failed to send confirmation email:", emailError);
       // Continue with registration even if email fails

@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
-import { Menu, X, LogOut, Bell } from "lucide-react"
+import { Menu, X, LogOut } from "lucide-react"
 import { Sheet, SheetContent } from "./ui/Sheet"
 import Button from "./ui/Button"
 import { Avatar, AvatarFallback } from "./ui/Avatar"
@@ -11,30 +11,35 @@ export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
     navigate("/login")
   }
 
-  // Only show Home and Events if user is logged in
-  const navLinks = user
-    ? [
-        { path: "/", label: "Home" },
-        { path: "/events", label: "Events" },
-      ]
-    : []
-
+  // Role-specific navigation links
   const roleLinks = {
-    student: [{ path: "/my-events", label: "My Events" }],
-    organizer: [{ path: "/create-event", label: "Create Event" }],
+    student: [
+      { path: "/", label: "Home", icon: "🏠" },
+      { path: "/events", label: "Browse Events", icon: "🔍" },
+      { path: "/my-registrations", label: "My Registrations", icon: "🎫" },
+      { path: "/notifications", label: "Notifications", icon: "🔔" },
+    ],
+    organizer: [
+      { path: "/my-events", label: "My Events", icon: "📅" },
+      { path: "/create-event", label: "Create Event", icon: "➕" },
+      { path: "/notifications", label: "Notifications", icon: "🔔" },
+    ],
     admin: [
-      { path: "/admin", label: "Admin" },
-      { path: "/create-event", label: "Create Event" },
+      { path: "/manage-events", label: "Manage Events", icon: "📅" },
+      { path: "/manage-organizers", label: "Manage Organizers", icon: "👥" },
+      { path: "/users", label: "Manage Users", icon: "👤" },
+      { path: "/notifications", label: "Notifications", icon: "🔔" },
     ],
   }
 
-  const userLinks = user ? roleLinks[user.role] || [] : []
+  const navLinks = user ? roleLinks[user.role] || [] : []
 
   return (
     <nav className="sticky top-0 z-40 border-b border-border bg-card shadow-sm">
@@ -49,23 +54,15 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
               >
-                {link.label}
-              </Link>
-            ))}
-            {userLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {link.label}
+                <span>{link.icon}</span>
+                <span>{link.label}</span>
               </Link>
             ))}
           </div>
@@ -74,29 +71,46 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                <button
-                  onClick={() => navigate("/notifications")}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Bell size={20} />
-                </button>
-                <div className="flex items-center space-x-2">
-                  <Avatar>
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="text-sm">
-                    <p className="font-medium text-foreground">{user.name}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
-                  </div>
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                  >
+                    <Avatar>
+                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {profileOpen && (
+                    <>
+                      {/* Backdrop */}
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={() => setProfileOpen(false)}
+                      />
+                      
+                      {/* Dropdown */}
+                      <div className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-lg shadow-lg z-20 py-2">
+                        <div className="px-4 py-3 border-b border-border">
+                          <p className="font-medium text-foreground">{user.name}</p>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <p className="text-xs text-muted-foreground capitalize mt-1">Role: {user.role}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            handleLogout()
+                            setProfileOpen(false)
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                          <LogOut size={16} />
+                          Logout
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-red-600 hover:bg-red-50"
-                >
-                  <LogOut size={16} />
-                </Button>
               </>
             ) : (
               <>
@@ -127,42 +141,33 @@ export default function Navbar() {
       {/* Mobile Sheet */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent onClose={() => setMobileOpen(false)}>
-          <div className="space-y-6 pt-8">
+          <div className="space-y-2 pt-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className="block text-sm font-medium text-foreground hover:text-primary"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
                 onClick={() => setMobileOpen(false)}
               >
-                {link.label}
-              </Link>
-            ))}
-            {userLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="block text-sm font-medium text-foreground hover:text-primary"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
+                <span className="text-lg">{link.icon}</span>
+                <span>{link.label}</span>
               </Link>
             ))}
 
             <div className="border-t border-border pt-6 space-y-3">
               {user ? (
                 <>
-                  <Button
-                    variant="secondary"
-                    className="w-full justify-center gap-2"
-                    onClick={() => {
-                      navigate("/notifications")
-                      setMobileOpen(false)
-                    }}
-                  >
-                    <Bell size={16} />
-                    Notifications
-                  </Button>
+                  <div className="px-4 py-3 bg-secondary rounded-lg">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Avatar>
+                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="text-sm">
+                        <p className="font-medium text-foreground">{user.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                      </div>
+                    </div>
+                  </div>
                   <Button
                     variant="outline"
                     className="w-full justify-center gap-2 border-red-200 text-red-600 hover:bg-red-50"

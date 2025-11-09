@@ -38,7 +38,14 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password, role = "student") => {
     try {
       const response = await api.post("/auth/register", { name, email, password, role })
-      const { token, user } = response.data
+      const { token, user, requiresApproval } = response.data
+      
+      // If organizer registration requires approval, don't auto-login
+      if (requiresApproval) {
+        return response.data
+      }
+      
+      // For students, auto-login
       localStorage.setItem("token", token)
       localStorage.setItem("user", JSON.stringify(user))
       setToken(token)

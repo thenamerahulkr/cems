@@ -11,28 +11,28 @@ export default function QRDisplay({ qrValue, eventId }) {
     : `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrValue || "")}`
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <CardHeader>
-        <CardTitle>Your QR Code</CardTitle>
-        <p className="text-sm text-muted-foreground mt-2">Show this code at the event for check-in</p>
+        <CardTitle className="text-lg">Your QR Code</CardTitle>
+        <p className="text-sm text-muted-foreground">Show this code at the event for check-in</p>
       </CardHeader>
-      <CardContent className="flex flex-col items-center">
-        <div className="bg-white p-4 rounded-xl border shadow-sm">
-          {qrValue ? (
-            <img 
-              src={qrImageUrl} 
-              alt="Event QR Code" 
-              width={200} 
-              height={200}
-              className="w-[200px] h-[200px]"
-            />
-          ) : (
-            <div className="w-[200px] h-[200px] flex items-center justify-center bg-gray-100 rounded">
-              <p className="text-sm text-muted-foreground">No QR Code</p>
-            </div>
-          )}
+      <CardContent>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="bg-white p-4 rounded-xl border-2 border-border shadow-sm">
+            {qrValue ? (
+              <img 
+                src={qrImageUrl} 
+                alt="Event QR Code" 
+                className="w-48 h-48 object-contain"
+              />
+            ) : (
+              <div className="w-48 h-48 flex items-center justify-center bg-secondary rounded">
+                <p className="text-sm text-muted-foreground">No QR Code</p>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">Event ID: {eventId}</p>
         </div>
-        <p className="text-sm text-muted-foreground mt-4">Event ID: {eventId}</p>
       </CardContent>
     </Card>
   )

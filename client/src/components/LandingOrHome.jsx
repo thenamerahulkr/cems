@@ -1,7 +1,7 @@
-// Smart component that shows Landing or Home based on auth status
+// Smart component that shows Landing page or redirects to dashboard
 import { useAuth } from "../context/AuthContext"
-import Landing from "../pages/Landing"
-import Home from "../pages/Home"
+import { Navigate } from "react-router-dom"
+import Landing from "../pages/shared/Landing"
 
 export default function LandingOrHome() {
   const { user, loading } = useAuth()
@@ -14,10 +14,21 @@ export default function LandingOrHome() {
     )
   }
 
-  // If user is logged in, show Home page
+  // If user is logged in, redirect to their dashboard
   if (user) {
-    return <Home />
+    if (user.role === "student") {
+      return <Navigate to="/student-dashboard" replace />
+    }
+    if (user.role === "organizer") {
+      return <Navigate to="/organizer-dashboard" replace />
+    }
+    if (user.role === "admin") {
+      return <Navigate to="/admin-dashboard" replace />
+    }
+    // Fallback to student dashboard if role is unknown
+    return <Navigate to="/student-dashboard" replace />
   }
+  
   // If not logged in, show Landing page
   return <Landing />
 }
