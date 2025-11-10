@@ -1,6 +1,6 @@
-// Manage Users - Admin page to manage all users
 import { useState, useEffect } from "react"
 import { Users, UserCheck, Activity, Shield, Trash2, AlertCircle, Mail, Calendar, Search } from "lucide-react"
+import { toast } from "sonner"
 import api from "../../api/api"
 import Button from "../../components/ui/Button"
 import Input from "../../components/ui/Input"
@@ -24,7 +24,7 @@ export default function ManageUsers() {
       const response = await api.get("/admin/users")
       setUsers(response.data.users || [])
     } catch (error) {
-      console.error("Failed to fetch users:", error)
+      // Failed to fetch users
     } finally {
       setLoading(false)
     }
@@ -35,10 +35,10 @@ export default function ManageUsers() {
     
     try {
       await api.delete(`/admin/users/${userId}`)
-      alert("User deleted successfully")
+      toast.success("User deleted successfully")
       fetchUsers()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to delete user")
+      toast.error(error.response?.data?.message || "Failed to delete user")
     }
   }
 
@@ -122,7 +122,7 @@ export default function ManageUsers() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Manage Users 👤</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Manage Users</h1>
             <p className="text-muted-foreground">View and manage all platform users</p>
           </div>
 

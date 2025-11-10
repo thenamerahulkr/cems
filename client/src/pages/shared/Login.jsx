@@ -1,6 +1,6 @@
-// Login page
 import { useState, useEffect } from "react"
 import { useNavigate, Link, useLocation } from "react-router-dom"
+import { toast } from "sonner"
 import { useAuth } from "../../context/AuthContext"
 import { Mail, Lock, Loader, Calendar, Users, Zap, ArrowRight } from "lucide-react"
 import { Card, CardContent } from "../../components/ui/Card"
@@ -41,9 +41,12 @@ export default function Login() {
 
     try {
       await login(formData.email, formData.password)
+      toast.success("Login successful! Welcome back.")
       navigate("/")
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.")
+      const errorMessage = err.response?.data?.message || "Login failed. Please try again."
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }

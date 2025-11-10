@@ -21,21 +21,21 @@ export default function Navbar() {
   // Role-specific navigation links
   const roleLinks = {
     student: [
-      { path: "/", label: "Home", icon: "🏠" },
-      { path: "/events", label: "Browse Events", icon: "🔍" },
-      { path: "/my-registrations", label: "My Registrations", icon: "🎫" },
-      { path: "/notifications", label: "Notifications", icon: "🔔" },
+      { path: "/", label: "Home", icon: "" },
+      { path: "/events", label: "Browse Events", icon: "" },
+      { path: "/my-registrations", label: "My Registrations", icon: "" },
+      { path: "/notifications", label: "Notifications", icon: "" },
     ],
     organizer: [
-      { path: "/my-events", label: "My Events", icon: "📅" },
-      { path: "/create-event", label: "Create Event", icon: "➕" },
-      { path: "/notifications", label: "Notifications", icon: "🔔" },
+      { path: "/my-events", label: "My Events", icon: "" },
+      { path: "/create-event", label: "Create Event", icon: "" },
+      { path: "/notifications", label: "Notifications", icon: "" },
     ],
     admin: [
-      { path: "/manage-events", label: "Manage Events", icon: "📅" },
-      { path: "/manage-organizers", label: "Manage Organizers", icon: "👥" },
-      { path: "/users", label: "Manage Users", icon: "👤" },
-      { path: "/notifications", label: "Notifications", icon: "🔔" },
+      { path: "/manage-events", label: "Manage Events", icon: "" },
+      { path: "/manage-organizers", label: "Manage Organizers", icon: "" },
+      { path: "/users", label: "Manage Users", icon: "" },
+      { path: "/notifications", label: "Notifications", icon: "" },
     ],
   }
 

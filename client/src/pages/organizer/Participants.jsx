@@ -42,7 +42,7 @@ export default function Participants() {
         ],
       )
     } catch (error) {
-      console.error("Failed to fetch participants:", error)
+      // Failed to fetch participants
     } finally {
       setLoading(false)
     }

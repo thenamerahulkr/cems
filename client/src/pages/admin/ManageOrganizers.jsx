@@ -1,6 +1,6 @@
-// Manage Organizers - Admin page to manage all organizers
 import { useState, useEffect } from "react"
 import { CheckCircle, XCircle, Clock, Trash2, UserCheck, AlertCircle, Search } from "lucide-react"
+import { toast } from "sonner"
 import api from "../../api/api"
 import Button from "../../components/ui/Button"
 import Input from "../../components/ui/Input"
@@ -25,7 +25,7 @@ export default function ManageOrganizers() {
       const allOrganizers = response.data.users.filter(u => u.role === "organizer")
       setOrganizers(allOrganizers)
     } catch (error) {
-      console.error("Failed to fetch organizers:", error)
+      // Failed to fetch organizers
     } finally {
       setLoading(false)
     }
@@ -34,10 +34,10 @@ export default function ManageOrganizers() {
   const handleApprove = async (organizerId) => {
     try {
       await api.post(`/admin/organizers/${organizerId}/approve`)
-      alert("Organizer approved successfully! Email sent to organizer.")
+      toast.success("Organizer approved successfully! Email sent to organizer.")
       fetchOrganizers()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to approve organizer")
+      toast.error(error.response?.data?.message || "Failed to approve organizer")
     }
   }
 
@@ -46,10 +46,10 @@ export default function ManageOrganizers() {
     
     try {
       await api.post(`/admin/organizers/${organizerId}/reject`)
-      alert("Organizer rejected")
+      toast.success("Organizer rejected")
       fetchOrganizers()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to reject organizer")
+      toast.error(error.response?.data?.message || "Failed to reject organizer")
     }
   }
 
@@ -58,10 +58,10 @@ export default function ManageOrganizers() {
     
     try {
       await api.delete(`/admin/users/${organizerId}`)
-      alert("Organizer deleted successfully")
+      toast.success("Organizer deleted successfully")
       fetchOrganizers()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to delete organizer")
+      toast.error(error.response?.data?.message || "Failed to delete organizer")
     }
   }
 
@@ -130,7 +130,7 @@ export default function ManageOrganizers() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Manage Organizers 👥</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Manage Organizers</h1>
             <p className="text-muted-foreground">Approve, reject, or manage event organizers</p>
           </div>
 

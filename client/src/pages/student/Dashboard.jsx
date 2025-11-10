@@ -69,7 +69,7 @@ export default function StudentDashboard() {
       })
 
     } catch (error) {
-      console.error("Failed to fetch dashboard data:", error)
+      // Silently handle error
     } finally {
       setLoading(false)
     }

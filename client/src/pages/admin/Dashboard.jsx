@@ -1,4 +1,3 @@
-// Admin Dashboard - Home page for administrators
 import { useState, useEffect } from "react"
 import { 
   Calendar, 
@@ -10,6 +9,7 @@ import {
   Clock,
   XCircle
 } from "lucide-react"
+import { toast } from "sonner"
 import { useAuth } from "../../context/AuthContext"
 import api from "../../api/api"
 import Button from "../../components/ui/Button"
@@ -37,16 +37,11 @@ export default function AdminDashboard() {
         api.get("/admin/stats")
       ])
       
-      console.log("Pending Organizers Response:", pendingOrgsRes.data)
-      
       setEvents(eventsRes.data.events || [])
       setPendingOrganizers(pendingOrgsRes.data.organizers || [])
       setStats(statsRes.data || {})
-      
-      console.log("Pending Organizers Count:", pendingOrgsRes.data.organizers?.length || 0)
     } catch (error) {
-      console.error("Failed to fetch dashboard data:", error)
-      console.error("Error details:", error.response?.data)
+      // Failed to fetch dashboard data
     } finally {
       setLoading(false)
     }
@@ -55,10 +50,10 @@ export default function AdminDashboard() {
   const handleApproveEvent = async (eventId) => {
     try {
       await api.post(`/events/${eventId}/approve`)
-      alert("Event approved successfully")
+      toast.success("Event approved successfully")
       fetchDashboardData()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to approve event")
+      toast.error(error.response?.data?.message || "Failed to approve event")
     }
   }
 
@@ -67,20 +62,20 @@ export default function AdminDashboard() {
     
     try {
       await api.post(`/events/${eventId}/reject`)
-      alert("Event rejected")
+      toast.success("Event rejected")
       fetchDashboardData()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to reject event")
+      toast.error(error.response?.data?.message || "Failed to reject event")
     }
   }
 
   const handleApproveOrganizer = async (organizerId) => {
     try {
       await api.post(`/admin/organizers/${organizerId}/approve`)
-  /*  */    alert("Organizer approved successfully")
+      toast.success("Organizer approved successfully")
       fetchDashboardData()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to approve organizer")
+      toast.error(error.response?.data?.message || "Failed to approve organizer")
     }
   }
 
@@ -89,10 +84,10 @@ export default function AdminDashboard() {
     
     try {
       await api.post(`/admin/organizers/${organizerId}/reject`)
-      alert("Organizer rejected")
+      toast.success("Organizer rejected")
       fetchDashboardData()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to reject organizer")
+      toast.error(error.response?.data?.message || "Failed to reject organizer")
     }
   }
 

@@ -241,10 +241,11 @@ export const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error("Login error:", error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error("Login error:", error);
+    }
     res.status(500).json({ 
-      message: "Login failed. Please try again later.", 
-      error: error.message 
+      message: "Login failed. Please try again later."
     });
   }
 };

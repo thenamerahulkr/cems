@@ -20,7 +20,7 @@ export default function Notifications() {
       const unreadNotifications = (response.data.notifications || []).filter(n => !n.read)
       setNotifications(unreadNotifications)
     } catch (error) {
-      console.error("Failed to fetch notifications:", error)
+      // Failed to fetch notifications
     } finally {
       setLoading(false)
     }
@@ -32,7 +32,7 @@ export default function Notifications() {
       // Remove from list after marking as read
       setNotifications((prev) => prev.filter((notif) => notif._id !== id))
     } catch (error) {
-      console.error("Failed to mark notification as read:", error)
+      // Failed to mark notification as read
     }
   }
 
@@ -42,7 +42,7 @@ export default function Notifications() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Notifications 🔔</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Notifications</h1>
             <p className="text-muted-foreground">New alerts and updates</p>
           </div>
         

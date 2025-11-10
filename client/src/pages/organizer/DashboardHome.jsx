@@ -99,7 +99,7 @@ export default function OrganizerDashboardHome() {
       setRecentRegistrations(registrations)
 
     } catch (error) {
-      console.error("Failed to fetch dashboard data:", error)
+      // Failed to fetch dashboard data
     } finally {
       setLoading(false)
     }

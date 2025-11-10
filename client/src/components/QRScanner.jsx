@@ -55,7 +55,7 @@ export default function QRScanner({ eventId }) {
           <div className="space-y-4">
             <div className="rounded-xl border-2 border-dashed border-primary/30 bg-secondary/20 p-8 text-center">
               <div className="w-32 h-32 mx-auto mb-4 border-2 border-primary/50 rounded-lg flex items-center justify-center">
-                <div className="animate-pulse text-primary text-sm font-medium">📱 Camera</div>
+                <div className="animate-pulse text-primary text-sm font-medium">Camera</div>
               </div>
               <p className="text-sm text-muted-foreground mb-4">QR Scanner would show camera feed here</p>
               <p className="text-xs text-muted-foreground">Enter QR value manually below to test:</p>

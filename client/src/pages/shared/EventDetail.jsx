@@ -1,7 +1,7 @@
-// Event detail page
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Calendar, MapPin, Share2, ArrowLeft, IndianRupee } from "lucide-react"
+import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import Button from "../../components/ui/Button"
 import QRDisplay from "../../components/QRDisplay"
@@ -32,7 +32,7 @@ export default function EventDetail() {
       const response = await api.get(`/events/${id}`)
       setEvent(response.data)
     } catch (error) {
-      console.error("Failed to fetch event:", error)
+      toast.error("Failed to fetch event details")
     } finally {
       setLoading(false)
     }
@@ -60,14 +60,14 @@ export default function EventDetail() {
         setQrCode(null)
       }
     } catch (error) {
-      console.error("Failed to check registration:", error)
+      // Silently fail registration check
     }
   }
 
   const handleRegister = async () => {
     // Check if event is paid
     if (event.isPaid && event.price > 0) {
-      console.log("Initiating payment for event:", event.title, "Amount:", event.price)
+
       // Initiate payment for paid events
       initiatePayment(
         id,
@@ -75,32 +75,32 @@ export default function EventDetail() {
         event.price,
         (data) => {
           // Payment successful
-          console.log("Payment successful:", data)
+
           setQrCode(data.registration.qrCode)
           setIsRegistered(true)
-          alert("Payment successful! You are now registered for the event.")
+          toast.success("Payment successful! You are now registered for the event.")
           checkRegistrationStatus() // Refresh registration status
         },
         (error) => {
           // Payment failed or cancelled
-          console.error("Payment error:", error)
-          alert(error)
+
+          toast.error(error)
         }
       )
     } else {
       // Free event - use regular registration
-      console.log("Registering for free event:", event.title)
+
       setActionLoading(true)
       try {
         const response = await api.post(`/registrations/${id}/register`)
-        console.log("Registration successful:", response.data)
+
         setQrCode(response.data.qrCode)
         setIsRegistered(true)
-        alert("Successfully registered for the event!")
+        toast.success("Successfully registered for the event!")
         checkRegistrationStatus() // Refresh registration status
       } catch (error) {
-        console.error("Failed to register:", error)
-        alert(error.response?.data?.message || "Failed to register for event")
+
+        toast.error(error.response?.data?.message || "Failed to register for event")
       } finally {
         setActionLoading(false)
       }
@@ -113,10 +113,10 @@ export default function EventDetail() {
       await api.delete(`/registrations/${id}/unregister`)
       setIsRegistered(false)
       setQrCode(null)
-      alert("Successfully unregistered from the event")
+      toast.success("Successfully unregistered from the event")
     } catch (error) {
-      console.error("Failed to unregister:", error)
-      alert(error.response?.data?.message || "Failed to unregister from event")
+
+      toast.error(error.response?.data?.message || "Failed to unregister from event")
     } finally {
       setActionLoading(false)
     }
@@ -126,10 +126,10 @@ export default function EventDetail() {
     try {
       const response = await api.post(`/events/${id}/approve`)
       setEvent({ ...event, status: "approved" })
-      alert("Event approved successfully!")
+      toast.success("Event approved successfully!")
     } catch (error) {
-      console.error("Failed to approve:", error)
-      alert(error.response?.data?.message || "Failed to approve event")
+
+      toast.error(error.response?.data?.message || "Failed to approve event")
     } finally {
       setActionLoading(false)
     }
@@ -140,10 +140,10 @@ export default function EventDetail() {
     try {
       const response = await api.post(`/events/${id}/reject`)
       setEvent({ ...event, status: "rejected" })
-      alert("Event rejected")
+      toast.success("Event rejected")
     } catch (error) {
-      console.error("Failed to reject:", error)
-      alert(error.response?.data?.message || "Failed to reject event")
+
+      toast.error(error.response?.data?.message || "Failed to reject event")
     } finally {
       setActionLoading(false)
     }

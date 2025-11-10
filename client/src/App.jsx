@@ -1,8 +1,9 @@
-// Main router setup
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
+import { Toaster } from "sonner"
 import { AuthProvider } from "./context/AuthContext"
 import ProtectedRoute from "./components/ProtectedRoute"
 import Navbar from "./components/Navbar"
+import ErrorBoundary from "./components/ErrorBoundary"
 
 import LandingOrHome from "./components/LandingOrHome"
 
@@ -12,6 +13,7 @@ import EventDetail from "./pages/shared/EventDetail"
 import Login from "./pages/shared/Login"
 import Register from "./pages/shared/Register"
 import Notifications from "./pages/shared/Notifications"
+import NotFound from "./pages/shared/NotFound"
 
 // Student pages
 import StudentDashboard from "./pages/student/Dashboard"
@@ -149,6 +151,8 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            {/* 404 Catch-all route */}
+            <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </div>
@@ -157,10 +161,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppContent />
+          <Toaster richColors closeButton />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

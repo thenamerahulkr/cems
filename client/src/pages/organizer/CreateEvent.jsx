@@ -1,7 +1,7 @@
-// Create event page
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, IndianRupee } from "lucide-react"
+import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card"
 import Button from "../../components/ui/Button"
 import Input from "../../components/ui/Input"
@@ -43,11 +43,10 @@ export default function CreateEvent() {
       }
       
       const response = await api.post("/events", eventData)
-      alert("Event created successfully! It will be visible after admin approval.")
+      toast.success("Event created successfully! It will be visible after admin approval.")
       navigate("/events")
     } catch (error) {
-      console.error("Failed to create event:", error)
-      alert(error.response?.data?.message || "Failed to create event. Please try again.")
+      toast.error(error.response?.data?.message || "Failed to create event. Please try again.")
     } finally {
       setLoading(false)
     }

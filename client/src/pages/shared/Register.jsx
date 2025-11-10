@@ -1,6 +1,6 @@
-// Register page
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import { toast } from "sonner"
 import { useAuth } from "../../context/AuthContext"
 import { User, Mail, Lock, Loader, Calendar, Zap, Users, ArrowRight, CheckCircle } from "lucide-react"
 import { Card, CardContent } from "../../components/ui/Card"
@@ -33,19 +33,21 @@ export default function Register() {
     try {
       const response = await register(formData.name, formData.email, formData.password, formData.role)
       
-      // If organizer registration requires approval, redirect to login with message
       if (response.requiresApproval) {
+        toast.success("Registration successful! Your account is pending admin approval.")
         navigate("/login", { 
           state: { 
             message: "Registration successful! Your account is pending admin approval. You will receive an email once approved." 
           } 
         })
       } else {
-        // Student registration - auto-login and go to home
+        toast.success("Registration successful! Welcome to CEMS.")
         navigate("/")
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.")
+      const errorMessage = err.response?.data?.message || "Registration failed. Please try again."
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -66,7 +68,7 @@ export default function Register() {
             </Link>
 
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              Join CEMS Today! 🎉
+              Join CEMS Today!
             </h1>
             <p className="text-lg text-muted-foreground mb-8">
               Create your account and start discovering amazing campus events in seconds.

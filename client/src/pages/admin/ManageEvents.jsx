@@ -1,6 +1,6 @@
-// Manage Events - Admin page to manage all events
 import { useState, useEffect } from "react"
 import { CheckCircle, XCircle, Clock, Trash2, Calendar, AlertCircle, MapPin, Users, Search } from "lucide-react"
+import { toast } from "sonner"
 import api from "../../api/api"
 import Button from "../../components/ui/Button"
 import Input from "../../components/ui/Input"
@@ -24,7 +24,7 @@ export default function ManageEvents() {
       const response = await api.get("/events")
       setEvents(response.data.events || [])
     } catch (error) {
-      console.error("Failed to fetch events:", error)
+      // Failed to fetch events
     } finally {
       setLoading(false)
     }
@@ -33,10 +33,10 @@ export default function ManageEvents() {
   const handleApprove = async (eventId) => {
     try {
       await api.post(`/events/${eventId}/approve`)
-      alert("Event approved successfully! Organizer will be notified.")
+      toast.success("Event approved successfully! Organizer will be notified.")
       fetchEvents()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to approve event")
+      toast.error(error.response?.data?.message || "Failed to approve event")
     }
   }
 
@@ -45,10 +45,10 @@ export default function ManageEvents() {
     
     try {
       await api.post(`/events/${eventId}/reject`)
-      alert("Event rejected")
+      toast.success("Event rejected")
       fetchEvents()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to reject event")
+      toast.error(error.response?.data?.message || "Failed to reject event")
     }
   }
 
@@ -57,10 +57,10 @@ export default function ManageEvents() {
     
     try {
       await api.delete(`/events/${eventId}`)
-      alert("Event deleted successfully")
+      toast.success("Event deleted successfully")
       fetchEvents()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to delete event")
+      toast.error(error.response?.data?.message || "Failed to delete event")
     }
   }
 
@@ -146,7 +146,7 @@ export default function ManageEvents() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Manage Events 📅</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Manage Events</h1>
             <p className="text-muted-foreground">Approve, reject, or manage all events</p>
           </div>
 

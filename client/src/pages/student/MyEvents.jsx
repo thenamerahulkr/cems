@@ -1,7 +1,7 @@
-// My Registered Events page
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Calendar, MapPin, Users, Ticket, QrCode } from "lucide-react"
+import { toast } from "sonner"
 import { Card, CardContent } from "../../components/ui/Card"
 import Button from "../../components/ui/Button"
 import QRDisplay from "../../components/QRDisplay"
@@ -19,10 +19,10 @@ export default function MyEvents() {
   const fetchMyRegistrations = async () => {
     try {
       const response = await api.get("/registrations/my-events")
-      console.log("My registrations:", response.data)
+
       setRegistrations(response.data.events || [])
     } catch (error) {
-      console.error("Failed to fetch my registrations:", error)
+      toast.error("Failed to fetch your registrations")
     } finally {
       setLoading(false)
     }
@@ -45,7 +45,7 @@ export default function MyEvents() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">My Registered Events 🎫</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">My Registered Events</h1>
             <p className="text-muted-foreground">Events you've registered for with QR codes</p>
           </div>
 

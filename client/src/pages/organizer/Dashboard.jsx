@@ -43,7 +43,7 @@ export default function OrganizerDashboard() {
         totalParticipants: userEvents.reduce((sum, e) => sum + (e.participants?.length || 0), 0)
       })
     } catch (error) {
-      console.error("Failed to fetch dashboard data:", error)
+      // Failed to fetch dashboard data
     } finally {
       setLoading(false)
     }
@@ -54,10 +54,10 @@ export default function OrganizerDashboard() {
     
     try {
       await api.delete(`/events/${eventId}`)
-      alert("Event deleted successfully")
+      // Event deleted successfully
       fetchDashboardData()
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to delete event")
+      // Failed to delete event
     }
   }
 

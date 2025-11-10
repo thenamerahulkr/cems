@@ -5,25 +5,25 @@ A comprehensive web application for managing college events, built with React an
 ## Features
 
 ### For Students
-- 🔍 Browse and discover campus events
-- 📝 Quick event registration with one click
-- 🎫 QR code generation for event check-in
-- 🔔 Email notifications and reminders
-- 📊 View registered events and attendance history
+- Browse and discover campus events
+- Quick event registration with one click
+- QR code generation for event check-in
+- Email notifications and reminders
+- View registered events and attendance history
 
 ### For Organizers
-- ➕ Create and publish events
-- 👥 Manage event registrations
-- 📱 QR code scanning for attendance tracking
-- 📧 Automated email reminders to attendees
-- 📈 View event analytics and statistics
+- Create and publish events
+- Manage event registrations
+- QR code scanning for attendance tracking
+- Automated email reminders to attendees
+- View event analytics and statistics
 
 ### For Administrators
-- 🛡️ Platform-wide oversight and management
-- ✅ Event approval system
-- 📊 Comprehensive analytics dashboard
-- 👤 User management
-- 🎯 System monitoring and statistics
+- Platform-wide oversight and management
+- Event approval system
+- Comprehensive analytics dashboard
+- User management
+- System monitoring and statistics
 
 ## Tech Stack
 
