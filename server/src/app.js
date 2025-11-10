@@ -26,6 +26,21 @@ app.use("/api/qr", qrRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/payment", paymentRoutes);
 
+// Root route
+app.get("/", (req, res) => {
+  res.json({ 
+    message: "🎓 CEMS API Server", 
+    status: "Running",
+    version: "1.0.0",
+    endpoints: {
+      health: "/health",
+      auth: "/api/auth",
+      events: "/api/events",
+      admin: "/api/admin"
+    }
+  });
+});
+
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });
