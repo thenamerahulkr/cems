@@ -70,11 +70,11 @@ export const approveOrganizer = async (req, res) => {
       const { sendMail } = await import("../services/mailService.js");
       await sendMail(
         user.email,
-        "🎉 Your Organizer Account Has Been Approved!",
+        "Your Organizer Account Has Been Approved!",
         `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Congratulations!</h1>
+              <h1 style="color: white; margin: 0; font-size: 28px;">Congratulations!</h1>
             </div>
             
             <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
@@ -138,16 +138,13 @@ export const approveOrganizer = async (req, res) => {
           </div>
         `
       );
-      console.log("✅ Approval email sent to:", user.email);
     } catch (emailError) {
-      console.error("Failed to send approval email:", emailError);
       // Don't fail the approval if email fails
     }
 
     res.json({ message: "Organizer approved successfully", user });
   } catch (error) {
-    console.error("Approve organizer error:", error);
-    res.status(500).json({ message: "Failed to approve organizer", error: error.message });
+    res.status(500).json({ message: "Failed to approve organizer" });
   }
 };
 
@@ -188,10 +185,12 @@ export const getPendingOrganizers = async (req, res) => {
       status: "pending" 
     }).select("-password").sort({ createdAt: -1 });
 
-    console.log("📋 Pending Organizers Query Result:", {
-      count: pendingOrganizers.length,
-      organizers: pendingOrganizers.map(o => ({ name: o.name, email: o.email, status: o.status }))
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("Pending Organizers Query Result:", {
+        count: pendingOrganizers.length,
+        organizers: pendingOrganizers.map(o => ({ name: o.name, email: o.email, status: o.status }))
+      });
+    }
 
     res.json({ organizers: pendingOrganizers });
   } catch (error) {

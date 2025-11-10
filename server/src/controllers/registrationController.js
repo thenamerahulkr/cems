@@ -71,7 +71,7 @@ export const registerForEvent = async (req, res) => {
         type: "info",
       });
     } catch (notifError) {
-      console.error("Failed to notify organizer:", notifError);
+      // Continue silently
     }
 
     // Send confirmation email with QR code (don't block registration if email fails)
@@ -82,7 +82,7 @@ export const registerForEvent = async (req, res) => {
         `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">✅ Registration Confirmed!</h1>
+              <h1 style="color: white; margin: 0; font-size: 28px;">Registration Confirmed!</h1>
             </div>
             
             <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
@@ -112,7 +112,7 @@ export const registerForEvent = async (req, res) => {
               
               <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 25px 0; border-radius: 5px;">
                 <p style="margin: 0; color: #92400e; font-size: 14px;">
-                  <strong>📅 Reminder:</strong> We'll send you a reminder 24 hours before the event.
+                  <strong>Reminder:</strong> We'll send you a reminder 24 hours before the event.
                 </p>
               </div>
               
@@ -132,9 +132,7 @@ export const registerForEvent = async (req, res) => {
           </div>
         `
       );
-      console.log("✅ Registration confirmation email with QR code sent to:", req.user.email);
     } catch (emailError) {
-      console.error("Failed to send confirmation email:", emailError);
       // Continue with registration even if email fails
     }
 
@@ -143,7 +141,6 @@ export const registerForEvent = async (req, res) => {
       qrCode,
     });
   } catch (error) {
-    console.error("Registration error:", error);
     
     // Handle duplicate registration error
     if (error.code === 11000) {
@@ -185,10 +182,8 @@ export const unregisterFromEvent = async (req, res) => {
 
     res.json({ message: "Unregistered successfully" });
   } catch (error) {
-    console.error("Unregistration error:", error);
     res.status(500).json({ 
-      message: "Failed to unregister. Please try again.", 
-      error: error.message 
+      message: "Failed to unregister. Please try again."
     });
   }
 };
@@ -201,8 +196,7 @@ export const getParticipants = async (req, res) => {
 
     res.json({ participants: regs });
   } catch (error) {
-    console.error("Get participants error:", error);
-    res.status(500).json({ message: "Failed to fetch participants", error: error.message });
+    res.status(500).json({ message: "Failed to fetch participants" });
   }
 };
 
@@ -225,10 +219,8 @@ export const getMyRegistrations = async (req, res) => {
 
     res.json({ events, registrations });
   } catch (error) {
-    console.error("Get my registrations error:", error);
     res.status(500).json({ 
-      message: "Failed to fetch your registrations. Please try again.", 
-      error: error.message 
+      message: "Failed to fetch your registrations. Please try again."
     });
   }
 };

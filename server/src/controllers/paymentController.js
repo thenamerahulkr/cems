@@ -6,50 +6,35 @@ import Notification from "../models/Notification.js";
 import { generateQR } from "../services/qrService.js";
 import { sendMail } from "../services/mailService.js";
 
-// Create Razorpay order
 export const createOrder = async (req, res) => {
   try {
-    console.log("📝 Create order request received:", req.body);
     const { eventId } = req.body;
     const userId = req.user._id;
 
-    // Get event details
     const event = await Event.findById(eventId);
     if (!event) {
-      console.error("❌ Event not found:", eventId);
       return res.status(404).json({ message: "Event not found" });
     }
 
-    console.log("✅ Event found:", event.title, "Price:", event.price);
-
-    // Check if event is approved
     if (event.status !== "approved") {
-      console.error("❌ Event not approved:", event.status);
       return res.status(400).json({ message: "Event is not approved yet" });
     }
 
-    // Check if event is paid
     if (!event.isPaid || event.price === 0) {
-      console.error("❌ Event is free");
       return res.status(400).json({ message: "This is a free event. Use regular registration." });
     }
 
-    // Check if already registered
     const existingReg = await Registration.findOne({ eventId, userId });
     if (existingReg && existingReg.paymentStatus === "completed") {
-      console.error("❌ Already registered");
       return res.status(400).json({ message: "Already registered for this event" });
     }
 
-    // Check capacity
     if (event.participants.length >= event.capacity) {
-      console.error("❌ Event full");
       return res.status(400).json({ message: "Event is full" });
     }
 
-    // Create Razorpay order
     const options = {
-      amount: event.price * 100, // Amount in paise (₹100 = 10000 paise)
+      amount: event.price * 100,
       currency: "INR",
       receipt: `receipt_${eventId}_${userId}_${Date.now()}`,
       notes: {
@@ -59,29 +44,21 @@ export const createOrder = async (req, res) => {
         userName: req.user.name,
       },
     };
-
-    console.log("💳 Creating Razorpay order with options:", options);
     
-    // Check if razorpayInstance is initialized
     if (!razorpayInstance) {
-      console.error("❌ Razorpay instance not initialized");
       return res.status(500).json({ message: "Payment gateway not configured" });
     }
 
     let order;
     try {
       order = await razorpayInstance.orders.create(options);
-      console.log("✅ Razorpay order created:", order.id);
     } catch (razorpayError) {
-      console.error("❌ Razorpay API error:", razorpayError);
-      console.error("Error details:", razorpayError.error);
       return res.status(500).json({ 
         message: "Failed to create payment order", 
         error: razorpayError.error?.description || razorpayError.message 
       });
     }
 
-    // Create or update pending registration
     let registration;
     if (existingReg) {
       registration = await Registration.findByIdAndUpdate(
@@ -103,8 +80,6 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    console.log(`✅ Payment order created: ${order.id} for event: ${event.title}`);
-
     res.json({
       orderId: order.id,
       amount: order.amount,
@@ -114,8 +89,7 @@ export const createOrder = async (req, res) => {
       eventTitle: event.title,
     });
   } catch (error) {
-    console.error("Create order error:", error);
-    res.status(500).json({ message: "Failed to create order", error: error.message });
+    res.status(500).json({ message: "Failed to create order" });
   }
 };
 
@@ -174,7 +148,7 @@ export const verifyPayment = async (req, res) => {
           type: "success",
         });
       } catch (notifError) {
-        console.error("Failed to notify organizer:", notifError);
+        // Continue silently
       }
 
       // Send confirmation email
@@ -184,7 +158,7 @@ export const verifyPayment = async (req, res) => {
           `Payment Successful - ${registration.eventId.title}`,
           `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #22c55e;">✅ Payment Successful!</h2>
+              <h2 style="color: #22c55e;">Payment Successful!</h2>
               <p>Hi ${req.user.name},</p>
               <p>Your payment has been processed successfully and you are now registered for:</p>
               <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
@@ -203,10 +177,8 @@ export const verifyPayment = async (req, res) => {
           `
         );
       } catch (emailError) {
-        console.error("Failed to send payment confirmation email:", emailError);
+        // Continue silently
       }
-
-      console.log(`✅ Payment verified: ${razorpay_payment_id} for registration: ${registrationId}`);
 
       res.json({
         success: true,
@@ -219,12 +191,9 @@ export const verifyPayment = async (req, res) => {
         },
       });
     } else {
-      // Invalid signature
       await Registration.findByIdAndUpdate(registrationId, {
         paymentStatus: "failed",
       });
-
-      console.error(`❌ Payment verification failed for registration: ${registrationId}`);
 
       res.status(400).json({
         success: false,
@@ -232,26 +201,20 @@ export const verifyPayment = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Verify payment error:", error);
-    res.status(500).json({ message: "Payment verification failed", error: error.message });
+    res.status(500).json({ message: "Payment verification failed" });
   }
 };
 
-// Get payment details
 export const getPaymentDetails = async (req, res) => {
   try {
     const { paymentId } = req.params;
-
     const payment = await razorpayInstance.payments.fetch(paymentId);
-
     res.json({ payment });
   } catch (error) {
-    console.error("Get payment error:", error);
-    res.status(500).json({ message: "Failed to fetch payment details", error: error.message });
+    res.status(500).json({ message: "Failed to fetch payment details" });
   }
 };
 
-// Refund payment
 export const refundPayment = async (req, res) => {
   try {
     const { registrationId } = req.body;
@@ -265,21 +228,16 @@ export const refundPayment = async (req, res) => {
       return res.status(400).json({ message: "No completed payment to refund" });
     }
 
-    // Create refund
     const refund = await razorpayInstance.payments.refund(registration.paymentId, {
-      amount: registration.amount * 100, // Amount in paise
+      amount: registration.amount * 100,
     });
 
-    // Update registration
     registration.paymentStatus = "refunded";
     await registration.save();
 
-    // Remove from event participants
     await Event.findByIdAndUpdate(registration.eventId, {
       $pull: { participants: registration.userId },
     });
-
-    console.log(`✅ Refund processed: ${refund.id} for registration: ${registrationId}`);
 
     res.json({
       success: true,
@@ -287,7 +245,6 @@ export const refundPayment = async (req, res) => {
       refund,
     });
   } catch (error) {
-    console.error("Refund error:", error);
-    res.status(500).json({ message: "Refund failed", error: error.message });
+    res.status(500).json({ message: "Refund failed" });
   }
 };

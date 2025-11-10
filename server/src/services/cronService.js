@@ -4,11 +4,8 @@ import User from "../models/User.js";
 import { sendMail } from "./mailService.js";
 
 export const startCronJobs = () => {
-  // Run every day at 9 AM
   cron.schedule("0 9 * * *", async () => {
     try {
-      console.log("🕒 Running daily event reminder job...");
-      
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0);
@@ -21,31 +18,37 @@ export const startCronJobs = () => {
         status: "approved",
       }).populate("participants");
 
-      for (let event of upcoming) {
-        for (let userId of event.participants) {
+      for (const event of upcoming) {
+        for (const userId of event.participants) {
           const user = await User.findById(userId);
           if (user) {
-            await sendMail(
-              user.email,
-              `Reminder: ${event.title}`,
-              `
-                <h2>Event Reminder</h2>
-                <p>Hi ${user.name},</p>
-                <p>This is a reminder that <strong>${event.title}</strong> is tomorrow!</p>
-                <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
-                <p><strong>Venue:</strong> ${event.venue}</p>
-                <p>See you there!</p>
-              `
-            );
+            try {
+              await sendMail(
+                user.email,
+                `Reminder: ${event.title}`,
+                `
+                  <h2>Event Reminder</h2>
+                  <p>Hi ${user.name},</p>
+                  <p>This is a reminder that <strong>${event.title}</strong> is tomorrow!</p>
+                  <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+                  <p><strong>Venue:</strong> ${event.venue}</p>
+                  <p>See you there!</p>
+                `
+              );
+            } catch (emailError) {
+              // Continue with other emails even if one fails
+            }
           }
         }
       }
-      
-      console.log(`✅ Sent reminders for ${upcoming.length} events`);
     } catch (error) {
-      console.error("❌ Cron job failed:", error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error("Cron job failed:", error);
+      }
     }
   });
 
-  console.log("✅ Cron jobs started");
+  if (process.env.NODE_ENV !== 'production') {
+    console.log("Cron jobs started");
+  }
 };

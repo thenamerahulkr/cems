@@ -22,7 +22,6 @@ export const verifyQR = async (req, res) => {
       registration: reg,
     });
   } catch (error) {
-    console.error("QR verification error:", error);
-    res.status(500).json({ message: "Verification failed", error: error.message });
+    res.status(500).json({ message: "Verification failed" });
   }
 };

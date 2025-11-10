@@ -57,12 +57,7 @@ export const register = async (req, res) => {
       department,
     });
 
-    console.log("✅ User created:", {
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      status: user.status
-    });
+
 
     // Notify admin if organizer registered
     if (user.role === "organizer") {

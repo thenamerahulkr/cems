@@ -8,9 +8,11 @@ export const razorpayInstance = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Log configuration status (without exposing secrets)
-if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
-  console.log("✅ Razorpay configured successfully");
-} else {
-  console.warn("⚠️  Razorpay credentials not found in .env file");
+// Validate configuration
+if (process.env.NODE_ENV !== 'production') {
+  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    console.log("Razorpay configured successfully");
+  } else {
+    console.warn("Razorpay credentials not found in .env file");
+  }
 }

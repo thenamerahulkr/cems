@@ -19,10 +19,12 @@ export const transporter = nodemailer.createTransport({
 });
 
 // Verify transporter configuration
-transporter.verify(function (error, success) {
-  if (error) {
-    console.error("❌ Mail service configuration error:", error.message);
-  } else {
-    console.log("✅ Mail service is ready to send emails");
-  }
-});
+if (process.env.NODE_ENV !== 'production') {
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.error("Mail service configuration error:", error.message);
+    } else {
+      console.log("Mail service is ready to send emails");
+    }
+  });
+}
